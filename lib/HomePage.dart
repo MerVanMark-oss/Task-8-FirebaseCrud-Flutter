@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'crud_service.dart';
+import 'auth_service.dart';
+import 'login_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -131,10 +133,50 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Firebase Equibal'),
-        centerTitle: true,
-        backgroundColor: Colors.teal,
-      ),
+  title: const Text('Firebase Equibal'),
+  centerTitle: true,
+  backgroundColor: Colors.teal,
+  actions: [
+  IconButton(
+    icon: const Icon(Icons.logout),
+    onPressed: () async {
+      bool? confirmLogout = await showDialog<bool>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text("Are You Sure?"),
+          content: const Text(
+              "Do you really want to logout?"),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context, false);
+              },
+              child: const Text("Cancel"),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context, true);
+              },
+              child: const Text("Logout"),
+            ),
+          ],
+        ),
+      );
+
+      if (confirmLogout == true) {
+        await AuthService().signOut();
+
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (_) => const LoginPage(),
+          ),
+        );
+      }
+    },
+  ),
+],
+),
       body: StreamBuilder<QuerySnapshot>(
         stream: service.getItems(),
         builder: (context, snapshot) {
